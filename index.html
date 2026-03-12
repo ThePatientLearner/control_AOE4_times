@@ -291,6 +291,7 @@ if(secondTCTime <= 0){
 clearInterval(secondTCInterval);
 document.getElementById("secondTCTimer").classList.add("ready");
 document.getElementById("secondTCCountdown").innerText = "LISTO";
+playSecondTCSound();
 return;
 }
 updateSecondTCLabel();
@@ -302,6 +303,7 @@ if(ramPushTime <= 0){
 clearInterval(ramPushInterval);
 document.getElementById("ramPushTimer").classList.add("ready");
 document.getElementById("ramPushCountdown").innerText = "LISTO";
+playRamPushSound();
 return;
 }
 updateRamPushLabel();
@@ -313,6 +315,7 @@ if(farmTransitionTime <= 0){
 clearInterval(farmTransitionInterval);
 document.getElementById("farmTransitionTimer").classList.add("ready");
 document.getElementById("farmTransitionCountdown").innerText = "LISTO";
+playFarmTransitionSound();
 return;
 }
 updateFarmTransitionLabel();
@@ -331,6 +334,7 @@ if(relicTime <= 0){
 clearInterval(relicInterval);
 document.getElementById("relicTimer").classList.add("ready");
 document.getElementById("relicCountdown").innerText = "LISTO";
+playRelicSound();
 return;
 }
 
@@ -419,7 +423,21 @@ label.innerText = `faltan ${min}:${sec.toString().padStart(2,"0")}`
 
 }else{
 
-label.innerHTML = `<span class="ready">LISTO</span>`
+if(!label.dataset.done){
+label.dataset.done = "true";
+label.innerHTML = `<span class="ready">LISTO</span>`;
+
+if(e.name === "Primer edificio militar"){
+playMilitaryBuildingSound();
+}
+else if(e.name === "Ventana de ataque temprano"){
+playEarlyAttackSound();
+}
+else{
+playAgeSound();
+}
+
+}
 
 }
 
@@ -490,6 +508,101 @@ oscillator.stop()
 
 }
 
+function playAgeSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+const osc1 = audioCtx.createOscillator()
+const osc2 = audioCtx.createOscillator()
+const gainNode = audioCtx.createGain()
+
+osc1.type = "sine"
+osc2.type = "triangle"
+
+osc1.frequency.value = 660
+osc2.frequency.value = 880
+
+gainNode.gain.setValueAtTime(0.25,audioCtx.currentTime)
+
+osc1.connect(gainNode)
+osc2.connect(gainNode)
+gainNode.connect(audioCtx.destination)
+
+osc1.start()
+osc2.start()
+
+setTimeout(()=>{
+osc1.stop()
+osc2.stop()
+},450)
+
+}
+
+function playMilitaryBuildingSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "square";
+osc2.type = "triangle";
+
+osc1.frequency.setValueAtTime(440, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(660, audioCtx.currentTime);
+
+osc1.frequency.exponentialRampToValueAtTime(523, audioCtx.currentTime + 0.18);
+osc2.frequency.exponentialRampToValueAtTime(784, audioCtx.currentTime + 0.18);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.03);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start(audioCtx.currentTime + 0.03);
+
+osc1.stop(audioCtx.currentTime + 0.4);
+osc2.stop(audioCtx.currentTime + 0.4);
+
+}
+
+function playEarlyAttackSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "sawtooth";
+osc2.type = "square";
+
+osc1.frequency.setValueAtTime(220, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(330, audioCtx.currentTime);
+
+osc1.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.2);
+osc2.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.2);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.02);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start();
+
+osc1.stop(audioCtx.currentTime + 0.35);
+osc2.stop(audioCtx.currentTime + 0.35);
+
+}
+
 function playWallSound(){
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -518,6 +631,131 @@ setTimeout(()=>{
 oscillator1.stop();
 oscillator2.stop();
 },500);
+
+}
+
+function playSecondTCSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "square";
+osc2.type = "triangle";
+
+osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.03);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.55);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start(audioCtx.currentTime + 0.02);
+
+osc1.stop(audioCtx.currentTime + 0.55);
+osc2.stop(audioCtx.currentTime + 0.55);
+
+}
+
+function playRamPushSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "sawtooth";
+osc2.type = "square";
+
+osc1.frequency.setValueAtTime(110, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(164.81, audioCtx.currentTime);
+
+osc1.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.18);
+osc2.frequency.exponentialRampToValueAtTime(130, audioCtx.currentTime + 0.18);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.02);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start();
+
+osc1.stop(audioCtx.currentTime + 0.35);
+osc2.stop(audioCtx.currentTime + 0.35);
+
+}
+
+function playFarmTransitionSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "sine";
+osc2.type = "triangle";
+
+osc1.frequency.setValueAtTime(880, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(1320, audioCtx.currentTime);
+
+osc1.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.12);
+osc2.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.12);
+osc1.frequency.exponentialRampToValueAtTime(987.77, audioCtx.currentTime + 0.26);
+osc2.frequency.exponentialRampToValueAtTime(1396.91, audioCtx.currentTime + 0.26);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.03);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.32);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start(audioCtx.currentTime + 0.04);
+
+osc1.stop(audioCtx.currentTime + 0.32);
+osc2.stop(audioCtx.currentTime + 0.32);
+
+}
+
+function playRelicSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const osc1 = audioCtx.createOscillator();
+const osc2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+osc1.type = "triangle";
+osc2.type = "sine";
+
+osc1.frequency.setValueAtTime(784, audioCtx.currentTime);
+osc2.frequency.setValueAtTime(1046.5, audioCtx.currentTime);
+
+gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+gainNode.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.04);
+gainNode.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 0.22);
+gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+
+osc1.connect(gainNode);
+osc2.connect(gainNode);
+gainNode.connect(audioCtx.destination);
+
+osc1.start();
+osc2.start(audioCtx.currentTime + 0.03);
+
+osc1.stop(audioCtx.currentTime + 0.6);
+osc2.stop(audioCtx.currentTime + 0.6);
 
 }
 
