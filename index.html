@@ -189,7 +189,19 @@ font-size:14px;
 
 <body class="notranslate">
 
+
 <h1>Temporizadores Age of Empires IV</h1>
+<div style="text-align:center;margin-bottom:25px;">
+<label style="margin-right:10px;font-weight:bold;">Civilización:</label>
+<select id="civSelect" onchange="changeCiv()" style="padding:8px 12px;font-size:15px;border-radius:6px;">
+<option value="generic">Genérico</option>
+<option value="english">Ingleses</option>
+<option value="french">Franceses</option>
+<option value="rus">Rus</option>
+<option value="hre">Sacro Imperio Romano</option>
+<option value="mongols">Mongoles</option>
+</select>
+</div>
 
 <div class="topControls">
 <button onclick="startTimers()">⚔ Iniciar batalla</button>
@@ -226,9 +238,58 @@ font-size:14px;
 
 <div id="timers"></div>
 
+
 <script>
 
-const events = [
+let civ = "generic";
+
+const civExtraTimings = {
+generic: {
+stoneWall: 720,
+secondTC: 450,
+ramPush: 540,
+farmTransition: 600,
+relic: 690
+},
+english: {
+stoneWall: 690,
+secondTC: 420,
+ramPush: 510,
+farmTransition: 570,
+relic: 660
+},
+french: {
+stoneWall: 660,
+secondTC: 390,
+ramPush: 480,
+farmTransition: 600,
+relic: 690
+},
+rus: {
+stoneWall: 750,
+secondTC: 450,
+ramPush: 540,
+farmTransition: 630,
+relic: 660
+},
+hre: {
+stoneWall: 720,
+secondTC: 420,
+ramPush: 510,
+farmTransition: 570,
+relic: 600
+},
+mongols: {
+stoneWall: 0,
+secondTC: 420,
+ramPush: 450,
+farmTransition: 540,
+relic: 660
+}
+};
+
+const civTimings = {
+generic:[
 { name:"Click a Edad Feudal", time:240 },
 { name:"Llegar a Edad Feudal", time:330 },
 { name:"Primer edificio militar", time:360 },
@@ -237,7 +298,66 @@ const events = [
 { name:"Llegar a Edad de los Castillos", time:660 },
 { name:"Click a Edad Imperial", time:900 },
 { name:"Llegar a Edad Imperial", time:1020 }
-];
+],
+
+english:[
+{ name:"Click a Edad Feudal", time:230 },
+{ name:"Llegar a Edad Feudal", time:300 },
+{ name:"Primer edificio militar", time:330 },
+{ name:"Ventana de ataque temprano", time:360 },
+{ name:"Click a Edad de los Castillos", time:540 },
+{ name:"Llegar a Edad de los Castillos", time:660 },
+{ name:"Click a Edad Imperial", time:900 },
+{ name:"Llegar a Edad Imperial", time:1020 }
+],
+
+french:[
+{ name:"Click a Edad Feudal", time:225 },
+{ name:"Llegar a Edad Feudal", time:295 },
+{ name:"Primer edificio militar", time:320 },
+{ name:"Ventana de ataque temprano", time:350 },
+{ name:"Click a Edad de los Castillos", time:540 },
+{ name:"Llegar a Edad de los Castillos", time:660 },
+{ name:"Click a Edad Imperial", time:900 },
+{ name:"Llegar a Edad Imperial", time:1020 }
+],
+
+rus:[
+{ name:"Click a Edad Feudal", time:235 },
+{ name:"Llegar a Edad Feudal", time:305 },
+{ name:"Primer edificio militar", time:360 },
+{ name:"Ventana de ataque temprano", time:420 },
+{ name:"Click a Edad de los Castillos", time:480 },
+{ name:"Llegar a Edad de los Castillos", time:600 },
+{ name:"Click a Edad Imperial", time:900 },
+{ name:"Llegar a Edad Imperial", time:1020 }
+],
+
+hre:[
+{ name:"Click a Edad Feudal", time:235 },
+{ name:"Llegar a Edad Feudal", time:305 },
+{ name:"Primer edificio militar", time:360 },
+{ name:"Ventana de ataque temprano", time:420 },
+{ name:"Click a Edad de los Castillos", time:450 },
+{ name:"Llegar a Edad de los Castillos", time:570 },
+{ name:"Click a Edad Imperial", time:900 },
+{ name:"Llegar a Edad Imperial", time:1020 }
+],
+
+mongols:[
+{ name:"Click a Edad Feudal", time:220 },
+{ name:"Llegar a Edad Feudal", time:285 },
+{ name:"Primer edificio militar", time:310 },
+{ name:"Ventana de ataque temprano", time:330 },
+{ name:"Click a Edad de los Castillos", time:540 },
+{ name:"Llegar a Edad de los Castillos", time:660 },
+{ name:"Click a Edad Imperial", time:900 },
+{ name:"Llegar a Edad Imperial", time:1020 }
+]
+
+};
+
+let events = civTimings[civ];
 
 let startTime;
 let interval;
@@ -245,19 +365,19 @@ let villagerReminderActive = false;
 let villagerInterval;
 let villagerCountdown = 60;
 let villagerCountdownInterval;
-let stoneWallTime = 720;
+let stoneWallTime = civExtraTimings[civ].stoneWall;
 let stoneWallInterval;
 
-let secondTCTime = 450;
+let secondTCTime = civExtraTimings[civ].secondTC;
 let secondTCInterval;
 
-let ramPushTime = 540;
+let ramPushTime = civExtraTimings[civ].ramPush;
 let ramPushInterval;
 
-let farmTransitionTime = 600;
+let farmTransitionTime = civExtraTimings[civ].farmTransition;
 let farmTransitionInterval;
 
-let relicTime = 690;
+let relicTime = civExtraTimings[civ].relic;
 let relicInterval;
 
 function startTimers(){
@@ -273,13 +393,20 @@ document.getElementById("ramPushTimer").style.display = "flex";
 document.getElementById("farmTransitionTimer").style.display = "flex";
 document.getElementById("relicTimer").style.display = "flex";
 
-secondTCTime = 450;
-ramPushTime = 540;
-farmTransitionTime = 600;
+const extraTimings = civExtraTimings[civ];
+
+secondTCTime = extraTimings.secondTC;
+ramPushTime = extraTimings.ramPush;
+farmTransitionTime = extraTimings.farmTransition;
+relicTime = extraTimings.relic;
+stoneWallTime = extraTimings.stoneWall;
 
 updateSecondTCLabel();
 updateRamPushLabel();
 updateFarmTransitionLabel();
+updateRelicLabel();
+updateStoneWallLabel();
+updateExtraTimerVisibility();
 
 if(secondTCInterval) clearInterval(secondTCInterval);
 if(ramPushInterval) clearInterval(ramPushInterval);
@@ -321,9 +448,6 @@ return;
 updateFarmTransitionLabel();
 },1000);
 
-relicTime = 690;
-updateRelicLabel();
-
 if(relicInterval) clearInterval(relicInterval);
 
 relicInterval = setInterval(()=>{
@@ -342,12 +466,14 @@ updateRelicLabel();
 
 },1000);
 
-stoneWallTime = 720;
-updateStoneWallLabel();
-
 if(stoneWallInterval) clearInterval(stoneWallInterval);
 
 stoneWallInterval = setInterval(()=>{
+
+if(stoneWallTime <= 0){
+clearInterval(stoneWallInterval);
+return;
+}
 
 stoneWallTime--;
 
@@ -374,6 +500,36 @@ if(interval) clearInterval(interval)
 
 interval = setInterval(updateTimers,1000)
 
+}
+
+function updateExtraTimerVisibility(){
+const stoneWallTimer = document.getElementById("stoneWallTimer");
+
+if(civ === "mongols"){
+stoneWallTimer.style.display = "none";
+}else{
+stoneWallTimer.style.display = "flex";
+}
+}
+
+function changeCiv(){
+const select = document.getElementById("civSelect");
+civ = select.value;
+events = civTimings[civ];
+
+stoneWallTime = civExtraTimings[civ].stoneWall;
+secondTCTime = civExtraTimings[civ].secondTC;
+ramPushTime = civExtraTimings[civ].ramPush;
+farmTransitionTime = civExtraTimings[civ].farmTransition;
+relicTime = civExtraTimings[civ].relic;
+
+createTimers();
+updateSecondTCLabel();
+updateRamPushLabel();
+updateFarmTransitionLabel();
+updateRelicLabel();
+updateStoneWallLabel();
+updateExtraTimerVisibility();
 }
 
 function createTimers(){
@@ -487,275 +643,109 @@ clearInterval(villagerCountdownInterval)
 }
 
 function playBell(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-const oscillator = audioCtx.createOscillator()
-const gainNode = audioCtx.createGain()
-
-oscillator.type = "sine"
-oscillator.frequency.value = 880
-
-gainNode.gain.setValueAtTime(0.2,audioCtx.currentTime)
-
-oscillator.connect(gainNode)
-gainNode.connect(audioCtx.destination)
-
-oscillator.start()
-
-setTimeout(()=>{
-oscillator.stop()
-},300)
-
+playMedievalChime([880, 1320, 1760], 0.22, 0.9, "bright");
 }
 
 function playAgeSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
-const osc1 = audioCtx.createOscillator()
-const osc2 = audioCtx.createOscillator()
-const gainNode = audioCtx.createGain()
-
-osc1.type = "sine"
-osc2.type = "triangle"
-
-osc1.frequency.value = 660
-osc2.frequency.value = 880
-
-gainNode.gain.setValueAtTime(0.25,audioCtx.currentTime)
-
-osc1.connect(gainNode)
-osc2.connect(gainNode)
-gainNode.connect(audioCtx.destination)
-
-osc1.start()
-osc2.start()
-
-setTimeout(()=>{
-osc1.stop()
-osc2.stop()
-},450)
-
+playMedievalChime([659.25, 987.77, 1318.51], 0.24, 1.05, "bright");
 }
 
 function playMilitaryBuildingSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-osc1.type = "square";
-osc2.type = "triangle";
-
-osc1.frequency.setValueAtTime(440, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(660, audioCtx.currentTime);
-
-osc1.frequency.exponentialRampToValueAtTime(523, audioCtx.currentTime + 0.18);
-osc2.frequency.exponentialRampToValueAtTime(784, audioCtx.currentTime + 0.18);
-
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.03);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
-
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-
-gainNode.connect(audioCtx.destination);
-
-osc1.start();
-osc2.start(audioCtx.currentTime + 0.03);
-
-osc1.stop(audioCtx.currentTime + 0.4);
-osc2.stop(audioCtx.currentTime + 0.4);
-
+playMedievalChime([392, 587.33, 783.99], 0.24, 0.95, "metal");
 }
 
 function playEarlyAttackSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-osc1.type = "sawtooth";
-osc2.type = "square";
-
-osc1.frequency.setValueAtTime(220, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(330, audioCtx.currentTime);
-
-osc1.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.2);
-osc2.frequency.exponentialRampToValueAtTime(260, audioCtx.currentTime + 0.2);
-
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.02);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
-
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-
-gainNode.connect(audioCtx.destination);
-
-osc1.start();
-osc2.start();
-
-osc1.stop(audioCtx.currentTime + 0.35);
-osc2.stop(audioCtx.currentTime + 0.35);
-
+playMedievalChime([293.66, 440, 659.25], 0.26, 0.75, "warn");
 }
 
 function playWallSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-const oscillator1 = audioCtx.createOscillator();
-const oscillator2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-oscillator1.type = "triangle";
-oscillator2.type = "sine";
-
-oscillator1.frequency.value = 440;
-oscillator2.frequency.value = 660;
-
-gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-
-oscillator1.connect(gainNode);
-oscillator2.connect(gainNode);
-
-gainNode.connect(audioCtx.destination);
-
-oscillator1.start();
-oscillator2.start();
-
-setTimeout(()=>{
-oscillator1.stop();
-oscillator2.stop();
-},500);
-
+playMedievalChime([349.23, 523.25, 698.46], 0.24, 1.1, "metal");
 }
 
 function playSecondTCSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-osc1.type = "square";
-osc2.type = "triangle";
-
-osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime);
-
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.03);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.55);
-
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-
-osc1.start();
-osc2.start(audioCtx.currentTime + 0.02);
-
-osc1.stop(audioCtx.currentTime + 0.55);
-osc2.stop(audioCtx.currentTime + 0.55);
-
+playMedievalChime([523.25, 783.99, 1046.5], 0.23, 1, "bright");
 }
 
 function playRamPushSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-osc1.type = "sawtooth";
-osc2.type = "square";
-
-osc1.frequency.setValueAtTime(110, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(164.81, audioCtx.currentTime);
-
-osc1.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.18);
-osc2.frequency.exponentialRampToValueAtTime(130, audioCtx.currentTime + 0.18);
-
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.22, audioCtx.currentTime + 0.02);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.35);
-
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-
-osc1.start();
-osc2.start();
-
-osc1.stop(audioCtx.currentTime + 0.35);
-osc2.stop(audioCtx.currentTime + 0.35);
-
+playMedievalChime([246.94, 369.99, 493.88], 0.28, 0.8, "warn");
 }
 
 function playFarmTransitionSound(){
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
-
-osc1.type = "sine";
-osc2.type = "triangle";
-
-osc1.frequency.setValueAtTime(880, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(1320, audioCtx.currentTime);
-
-osc1.frequency.exponentialRampToValueAtTime(1174.66, audioCtx.currentTime + 0.12);
-osc2.frequency.exponentialRampToValueAtTime(1567.98, audioCtx.currentTime + 0.12);
-osc1.frequency.exponentialRampToValueAtTime(987.77, audioCtx.currentTime + 0.26);
-osc2.frequency.exponentialRampToValueAtTime(1396.91, audioCtx.currentTime + 0.26);
-
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.12, audioCtx.currentTime + 0.03);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.32);
-
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-
-osc1.start();
-osc2.start(audioCtx.currentTime + 0.04);
-
-osc1.stop(audioCtx.currentTime + 0.32);
-osc2.stop(audioCtx.currentTime + 0.32);
-
+playMedievalChime([587.33, 880, 1174.66], 0.17, 1.15, "soft");
 }
 
 function playRelicSound(){
+playMedievalChime([440, 659.25, 880], 0.2, 1.25, "holy");
+}
+
+function playMedievalChime(frequencies, volume = 0.22, duration = 1, profile = "bright"){
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const osc1 = audioCtx.createOscillator();
-const osc2 = audioCtx.createOscillator();
-const gainNode = audioCtx.createGain();
+const masterGain = audioCtx.createGain();
+masterGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+masterGain.gain.exponentialRampToValueAtTime(volume, audioCtx.currentTime + 0.01);
+masterGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+masterGain.connect(audioCtx.destination);
 
-osc1.type = "triangle";
-osc2.type = "sine";
+const profileSettings = {
+bright: {
+partials: [1, 2.01, 3.98],
+types: ["triangle", "sine", "sine"],
+gains: [1, 0.32, 0.14],
+detunes: [0, 4, -6]
+},
+metal: {
+partials: [1, 2.7, 4.15],
+types: ["triangle", "sine", "sine"],
+gains: [1, 0.26, 0.12],
+detunes: [0, -8, 11]
+},
+warn: {
+partials: [1, 1.5, 3.1],
+types: ["square", "triangle", "sine"],
+gains: [1, 0.2, 0.08],
+detunes: [0, -5, 7]
+},
+soft: {
+partials: [1, 2, 3],
+types: ["sine", "triangle", "sine"],
+gains: [1, 0.2, 0.06],
+detunes: [0, 3, -4]
+},
+holy: {
+partials: [1, 2, 2.5],
+types: ["sine", "triangle", "sine"],
+gains: [1, 0.24, 0.1],
+detunes: [0, 5, -3]
+}
+};
 
-osc1.frequency.setValueAtTime(784, audioCtx.currentTime);
-osc2.frequency.setValueAtTime(1046.5, audioCtx.currentTime);
+const selectedProfile = profileSettings[profile] || profileSettings.bright;
 
-gainNode.gain.setValueAtTime(0.0001, audioCtx.currentTime);
-gainNode.gain.exponentialRampToValueAtTime(0.16, audioCtx.currentTime + 0.04);
-gainNode.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 0.22);
-gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.6);
+frequencies.forEach((baseFrequency, noteIndex) => {
+selectedProfile.partials.forEach((partial, partialIndex) => {
+const oscillator = audioCtx.createOscillator();
+const noteGain = audioCtx.createGain();
 
-osc1.connect(gainNode);
-osc2.connect(gainNode);
-gainNode.connect(audioCtx.destination);
+oscillator.type = selectedProfile.types[partialIndex];
+oscillator.frequency.setValueAtTime(baseFrequency * partial, audioCtx.currentTime);
+oscillator.detune.setValueAtTime(selectedProfile.detunes[partialIndex], audioCtx.currentTime);
 
-osc1.start();
-osc2.start(audioCtx.currentTime + 0.03);
+const startAt = audioCtx.currentTime + noteIndex * 0.08;
+const endAt = startAt + duration - noteIndex * 0.08;
+const partialVolume = volume * selectedProfile.gains[partialIndex] / frequencies.length;
 
-osc1.stop(audioCtx.currentTime + 0.6);
-osc2.stop(audioCtx.currentTime + 0.6);
+noteGain.gain.setValueAtTime(0.0001, startAt);
+noteGain.gain.exponentialRampToValueAtTime(partialVolume, startAt + 0.01);
+noteGain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+
+oscillator.connect(noteGain);
+noteGain.connect(masterGain);
+
+oscillator.start(startAt);
+oscillator.stop(endAt);
+});
+});
 
 }
 
@@ -795,6 +785,8 @@ document.getElementById("relicCountdown").innerText = `${min}:${sec.toString().p
 }
 
 </script>
+
+ 
 
 </body>
 </html>
