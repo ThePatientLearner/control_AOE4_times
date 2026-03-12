@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<title>Temporizadores Age of Empires IV</title>
+
+<style>
+body{
+background:#0e0e0e;
+color:white;
+font-family:Arial;
+padding:30px;
+}
+
+h1{
+text-align:center;
+margin-bottom:30px;
+}
+
+button{
+padding:12px 25px;
+font-size:16px;
+cursor:pointer;
+background:#3aa3ff;
+border:none;
+border-radius:5px;
+margin-bottom:0;
+}
+
+.timer{
+margin-bottom:30px;
+}
+
+.title{
+font-size:18px;
+margin-bottom:5px;
+}
+
+.barContainer{
+width:100%;
+height:25px;
+background:#333;
+border-radius:5px;
+overflow:hidden;
+}
+
+.bar{
+height:100%;
+width:100%;
+background:linear-gradient(90deg,#00ff88,#00aaff);
+transition:width 1s linear;
+}
+
+.time{
+font-size:13px;
+margin-top:4px;
+color:#aaa;
+}
+
+.ready{
+color:#00ff88;
+font-weight:bold;
+}
+
+.topControls{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:40px;
+}
+
+.reminderButton{
+background:#222;
+color:white;
+border:1px solid #555;
+padding:12px 18px;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+display:none;
+align-items:center;
+gap:10px;
+margin-left:auto;
+}
+
+.reminderButton.active{
+background:#00aa66;
+}
+
+.countdown{
+font-weight:bold;
+color:#00ff88;
+min-width:40px;
+text-align:right;
+}
+
+.smallTimer{
+background:#1b1b1b;
+border:1px solid #555;
+padding:10px 14px;
+border-radius:6px;
+font-size:13px;
+display:none;
+align-items:center;
+gap:8px;
+color:#ddd;
+margin-left:8px;
+}
+
+.smallTimer.ready{
+background:#00aa66;
+color:white;
+}
+
+.smallTimerTime{
+font-weight:bold;
+color:#00ff88;
+}
+</style>
+</head>
+
+<body class="notranslate">
+
+<h1>Temporizadores Age of Empires IV</h1>
+
+<div class="topControls">
+<button onclick="startTimers()">Iniciar partida</button>
+
+<button class="reminderButton" id="reminderButton" onclick="toggleVillagerReminder()">
+<span class="countdown" id="villagerCountdown">60</span>
+👤 recordatorio creación de aldeanos
+</button>
+
+<div class="smallTimer" id="stoneWallTimer">
+<span class="smallTimerTime" id="stoneWallCountdown">12:00</span>
+🧱 muralla de piedra
+</div>
+
+<div class="smallTimer" id="secondTCTimer">
+<span class="smallTimerTime" id="secondTCCountdown">7:30</span>
+🏘 2º Town Center
+</div>
+
+<div class="smallTimer" id="ramPushTimer">
+<span class="smallTimerTime" id="ramPushCountdown">9:00</span>
+⚔️ push con arietes
+</div>
+
+<div class="smallTimer" id="farmTransitionTimer">
+<span class="smallTimerTime" id="farmTransitionCountdown">10:00</span>
+🌾 transición a granjas
+</div>
+<div class="smallTimer" id="relicTimer">
+<span class="smallTimerTime" id="relicCountdown">11:30</span>
+⛪ capturar reliquias
+</div>
+</div>
+
+<div id="timers"></div>
+
+<script>
+
+const events = [
+{ name:"Click a Edad Feudal", time:240 },
+{ name:"Llegar a Edad Feudal", time:330 },
+{ name:"Primer edificio militar", time:360 },
+{ name:"Ventana de ataque temprano", time:420 },
+{ name:"Click a Edad de los Castillos", time:540 },
+{ name:"Llegar a Edad de los Castillos", time:660 }
+];
+
+let startTime;
+let interval;
+let villagerReminderActive = false;
+let villagerInterval;
+let villagerCountdown = 60;
+let villagerCountdownInterval;
+let stoneWallTime = 720;
+let stoneWallInterval;
+
+let secondTCTime = 450;
+let secondTCInterval;
+
+let ramPushTime = 540;
+let ramPushInterval;
+
+let farmTransitionTime = 600;
+let farmTransitionInterval;
+
+let relicTime = 690;
+let relicInterval;
+
+function startTimers(){
+
+startTime = Date.now()
+
+createTimers()
+
+document.getElementById("reminderButton").style.display = "flex";
+document.getElementById("stoneWallTimer").style.display = "flex";
+document.getElementById("secondTCTimer").style.display = "flex";
+document.getElementById("ramPushTimer").style.display = "flex";
+document.getElementById("farmTransitionTimer").style.display = "flex";
+document.getElementById("relicTimer").style.display = "flex";
+
+secondTCTime = 450;
+ramPushTime = 540;
+farmTransitionTime = 600;
+
+updateSecondTCLabel();
+updateRamPushLabel();
+updateFarmTransitionLabel();
+
+if(secondTCInterval) clearInterval(secondTCInterval);
+if(ramPushInterval) clearInterval(ramPushInterval);
+if(farmTransitionInterval) clearInterval(farmTransitionInterval);
+
+secondTCInterval = setInterval(()=>{
+secondTCTime--;
+if(secondTCTime <= 0){
+clearInterval(secondTCInterval);
+document.getElementById("secondTCTimer").classList.add("ready");
+document.getElementById("secondTCCountdown").innerText = "LISTO";
+return;
+}
+updateSecondTCLabel();
+},1000);
+
+ramPushInterval = setInterval(()=>{
+ramPushTime--;
+if(ramPushTime <= 0){
+clearInterval(ramPushInterval);
+document.getElementById("ramPushTimer").classList.add("ready");
+document.getElementById("ramPushCountdown").innerText = "LISTO";
+return;
+}
+updateRamPushLabel();
+},1000);
+
+farmTransitionInterval = setInterval(()=>{
+farmTransitionTime--;
+if(farmTransitionTime <= 0){
+clearInterval(farmTransitionInterval);
+document.getElementById("farmTransitionTimer").classList.add("ready");
+document.getElementById("farmTransitionCountdown").innerText = "LISTO";
+return;
+}
+updateFarmTransitionLabel();
+},1000);
+
+relicTime = 690;
+updateRelicLabel();
+
+if(relicInterval) clearInterval(relicInterval);
+
+relicInterval = setInterval(()=>{
+
+relicTime--;
+
+if(relicTime <= 0){
+clearInterval(relicInterval);
+document.getElementById("relicTimer").classList.add("ready");
+document.getElementById("relicCountdown").innerText = "LISTO";
+return;
+}
+
+updateRelicLabel();
+
+},1000);
+
+stoneWallTime = 720;
+updateStoneWallLabel();
+
+if(stoneWallInterval) clearInterval(stoneWallInterval);
+
+stoneWallInterval = setInterval(()=>{
+
+stoneWallTime--;
+
+if(stoneWallTime <= 0){
+clearInterval(stoneWallInterval);
+document.getElementById("stoneWallTimer").classList.add("ready");
+document.getElementById("stoneWallCountdown").innerText = "LISTO";
+playWallSound();
+return;
+}
+
+updateStoneWallLabel();
+
+},1000);
+
+villagerCountdown = 60;
+document.getElementById("villagerCountdown").innerText = villagerCountdown;
+
+if(!villagerReminderActive){
+  toggleVillagerReminder();
+}
+
+if(interval) clearInterval(interval)
+
+interval = setInterval(updateTimers,1000)
+
+}
+
+function createTimers(){
+
+const container = document.getElementById("timers")
+container.innerHTML=""
+
+events.forEach(e=>{
+
+container.innerHTML += `
+<div class="timer">
+<div class="title">${e.name}</div>
+<div class="barContainer">
+<div class="bar" id="bar-${e.time}"></div>
+</div>
+<div class="time" id="time-${e.time}"></div>
+</div>
+`
+
+})
+
+}
+
+function updateTimers(){
+
+const elapsed = (Date.now()-startTime)/1000
+
+events.forEach(e=>{
+
+const remaining = e.time - elapsed
+
+const percent = Math.max(0,(remaining/e.time)*100)
+
+const bar = document.getElementById("bar-"+e.time)
+const label = document.getElementById("time-"+e.time)
+
+if(bar) bar.style.width = percent+"%"
+
+if(label){
+
+if(remaining>0){
+
+const min = Math.floor(remaining/60)
+const sec = Math.floor(remaining%60)
+
+label.innerText = `faltan ${min}:${sec.toString().padStart(2,"0")}`
+
+}else{
+
+label.innerHTML = `<span class="ready">LISTO</span>`
+
+}
+
+}
+
+})
+
+}
+
+function toggleVillagerReminder(){
+
+const button = document.getElementById("reminderButton")
+const label = document.getElementById("villagerCountdown")
+
+villagerReminderActive = !villagerReminderActive
+
+if(villagerReminderActive){
+
+button.classList.add("active")
+villagerCountdown = 60
+label.innerText = villagerCountdown
+
+playBell()
+
+villagerInterval = setInterval(playBell,60000)
+
+villagerCountdownInterval = setInterval(()=>{
+
+villagerCountdown--
+
+if(villagerCountdown <= 0){
+villagerCountdown = 60
+}
+
+label.innerText = villagerCountdown
+
+},1000)
+
+}else{
+
+button.classList.remove("active")
+clearInterval(villagerInterval)
+clearInterval(villagerCountdownInterval)
+
+}
+
+}
+
+function playBell(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+const oscillator = audioCtx.createOscillator()
+const gainNode = audioCtx.createGain()
+
+oscillator.type = "sine"
+oscillator.frequency.value = 880
+
+gainNode.gain.setValueAtTime(0.2,audioCtx.currentTime)
+
+oscillator.connect(gainNode)
+gainNode.connect(audioCtx.destination)
+
+oscillator.start()
+
+setTimeout(()=>{
+oscillator.stop()
+},300)
+
+}
+
+function playWallSound(){
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const oscillator1 = audioCtx.createOscillator();
+const oscillator2 = audioCtx.createOscillator();
+const gainNode = audioCtx.createGain();
+
+oscillator1.type = "triangle";
+oscillator2.type = "sine";
+
+oscillator1.frequency.value = 440;
+oscillator2.frequency.value = 660;
+
+gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
+
+oscillator1.connect(gainNode);
+oscillator2.connect(gainNode);
+
+gainNode.connect(audioCtx.destination);
+
+oscillator1.start();
+oscillator2.start();
+
+setTimeout(()=>{
+oscillator1.stop();
+oscillator2.stop();
+},500);
+
+}
+
+function updateStoneWallLabel(){
+
+const min = Math.floor(stoneWallTime/60);
+const sec = stoneWallTime%60;
+
+const label = document.getElementById("stoneWallCountdown");
+
+label.innerText = `${min}:${sec.toString().padStart(2,"0")}`;
+
+}
+
+function updateSecondTCLabel(){
+const min = Math.floor(secondTCTime/60);
+const sec = secondTCTime % 60;
+document.getElementById("secondTCCountdown").innerText = `${min}:${sec.toString().padStart(2,"0")}`;
+}
+
+function updateRamPushLabel(){
+const min = Math.floor(ramPushTime/60);
+const sec = ramPushTime % 60;
+document.getElementById("ramPushCountdown").innerText = `${min}:${sec.toString().padStart(2,"0")}`;
+}
+
+function updateFarmTransitionLabel(){
+const min = Math.floor(farmTransitionTime/60);
+const sec = farmTransitionTime % 60;
+document.getElementById("farmTransitionCountdown").innerText = `${min}:${sec.toString().padStart(2,"0")}`;
+}
+
+function updateRelicLabel(){
+const min = Math.floor(relicTime/60);
+const sec = relicTime % 60;
+document.getElementById("relicCountdown").innerText = `${min}:${sec.toString().padStart(2,"0")}`;
+}
+
+</script>
+
+</body>
+</html>
