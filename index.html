@@ -20,14 +20,29 @@ margin-bottom:30px;
 }
 
 button{
-padding:12px 25px;
-font-size:16px;
+padding:14px 24px;
+font-size:17px;
+font-weight:bold;
+letter-spacing:0.5px;
 cursor:pointer;
-background:#3aa3ff;
-border:none;
-border-radius:5px;
+color:#f5e6c8;
+background:linear-gradient(180deg,#7a4b1d,#4e2f12);
+border:2px solid #c9a44b;
+border-radius:6px;
 margin-bottom:0;
 max-width:100%;
+box-shadow:0 3px 0 #2a1808, 0 6px 12px rgba(0,0,0,0.5);
+transition:all 0.15s ease;
+}
+
+button:hover{
+background:linear-gradient(180deg,#8a5a2a,#5a3616);
+transform:translateY(-1px);
+}
+
+button:active{
+transform:translateY(2px);
+box-shadow:0 1px 0 #2a1808;
 }
 
 .timer{
@@ -177,7 +192,7 @@ font-size:14px;
 <h1>Temporizadores Age of Empires IV</h1>
 
 <div class="topControls">
-<button onclick="startTimers()">Iniciar partida</button>
+<button onclick="startTimers()">⚔ Iniciar batalla</button>
 
 <button class="reminderButton" id="reminderButton" onclick="toggleVillagerReminder()">
 <span class="countdown" id="villagerCountdown">60</span>
